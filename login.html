@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=375, height=812, initial-scale=1.0">
+    <title>로그인 화면</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 375px;
+            height: 90%; 
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        h1 {
+            color: #6a4cfc;
+            font-size: 26px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #6a4cfc;
+            font-size: 14px;
+            margin-top: -5px;
+        }
+
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .forgot-password {
+            color: #6a4cfc;
+            font-size: 14px;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #6a4cfc;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-button:hover {
+            background-color: #5a3bd2;
+        }
+
+        .signup-link {
+            color: #6a4cfc;
+            font-size: 14px;
+            text-decoration: none;
+            display: block;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h1>환영합니다!</h1>
+        <p>소설의 세계에 다시 빠져보세요.</p>
+        <form id="loginForm">
+            <input type="email" placeholder="Email" required><br>
+            <input type="password" placeholder="Password" required><br>
+            <a href="#" class="forgot-password">비밀번호를 잊어버렸나요?</a>
+            <button type="submit" class="login-button">Login</button>
+        </form>
+        <a href="#" class="signup-link">처음이신가요? 회원가입</a>
+    </div>
+
+    <script>
+        // 로그인 폼을 제출할 때 페이지 전환
+        const loginForm = document.getElementById('loginForm');
+        
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // 기본 폼 제출 동작을 막음
+            
+            // 로그인 성공 시 shorts.html로 리디렉션
+            window.location.href = "shorts.html";
+        });
+    </script>
+</body>
+</html>
