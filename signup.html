@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .signup-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 375px;
+            height: 90%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        h1 {
+            color: #6a4cfc;
+            font-size: 26px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .info {
+            font-size: 12px;
+            color: gray;
+            text-align: left;
+            margin-bottom: 5px;
+        }
+
+        .error {
+            font-size: 12px;
+            color: red;
+            text-align: left;
+            display: none;
+        }
+
+        .gender-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .gender-option {
+            padding: 12px 20px;
+            border: 2px solid #6a4cfc;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: white;
+            color: #6a4cfc;
+            transition: all 0.3s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .gender-option.active {
+            background-color: #6a4cfc;
+            color: white;
+        }
+
+        .signup-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #6a4cfc;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .signup-button:hover {
+            background-color: #5a3bd2;
+        }
+
+        .login-link {
+            color: #6a4cfc;
+            font-size: 14px;
+            text-decoration: none;
+            display: block;
+            margin-top: 15px;
+        }
+
+        /* 라디오 버튼 숨기기 */
+        .gender-radio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="signup-container">
+        <h1>회원가입</h1>
+        <form id="signupForm">
+            <input type="text" id="name" placeholder="이름" required><br>
+
+            <input type="text" id="id" placeholder="아이디 (최대 10자)" required>
+            <div class="info">아이디는 최대 10자까지 가능합니다.</div>
+            <div class="error" id="idError">아이디는 최대 10자까지만 가능합니다.</div>
+
+            <input type="password" id="password" placeholder="비밀번호 (최소 8자)" required>
+            <div class="info">비밀번호는 최소 8자 이상이어야 합니다.</div>
+            <div class="error" id="passwordError">비밀번호는 최소 8자 이상이어야 합니다.</div>
+
+            <input type="number" id="age" placeholder="나이 (양수 입력)" required>
+            <div class="info">나이는 숫자로 입력하세요.</div>
+            <div class="error" id="ageError">올바른 나이를 입력하세요.</div>
+
+            <!-- 성별 선택 버튼 -->
+            <div class="gender-container">
+                <input type="radio" id="male" name="gender" value="M" class="gender-radio">
+                <label for="male" class="gender-option" onclick="selectGender('M')">남성</label>
+
+                <input type="radio" id="female" name="gender" value="F" class="gender-radio">
+                <label for="female" class="gender-option" onclick="selectGender('F')">여성</label>
+            </div>
+            <div class="error" id="genderError">성별을 선택해주세요.</div>
+
+            <button type="submit" class="signup-button">가입하기</button>
+        </form>
+        <a href="login.html" class="login-link">이미 계정이 있으신가요? 로그인</a>
+    </div>
+
+    <script>
+        function selectGender(selected) {
+            document.querySelectorAll('.gender-option').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            if (selected === 'M') {
+                document.getElementById('male').checked = true;
+                document.querySelector('label[for="male"]').classList.add('active');
+            } else {
+                document.getElementById('female').checked = true;
+                document.querySelector('label[for="female"]').classList.add('active');
+            }
+
+            document.getElementById("genderError").style.display = "none"; // 성별 선택 시 오류 메시지 숨김
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', function(event) {
+            let valid = true;
+
+            const userId = document.getElementById('id').value.trim();
+            if (userId.length > 10) {
+                document.getElementById("idError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("idError").style.display = "none";
+            }
+
+            const password = document.getElementById('password').value;
+            if (password.length < 8) {
+                document.getElementById("passwordError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("passwordError").style.display = "none";
+            }
+
+            const age = document.getElementById('age').value;
+            if (age <= 0 || isNaN(age)) {
+                document.getElementById("ageError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("ageError").style.display = "none";
+            }
+
+            const gender = document.querySelector('input[name="gender"]:checked');
+            if (!gender) {
+                document.getElementById("genderError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("genderError").style.display = "none";
+            }
+
+            if (!valid) {
+                event.preventDefault(); // 폼 제출 방지
+            }
+        });
+    </script>
+
+    <script src="signup.js"></script>
+</body>
+</html>
