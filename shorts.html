@@ -175,9 +175,14 @@
             alert("좋아요를 눌렀습니다!");
         });
 
-        commentButton.addEventListener('click', () => {
-            // 댓글 창 슬라이드 업
+        commentButton.addEventListener('click', async () => {
+            // 댓글 창 토글
             commentBox.classList.toggle('show');
+
+            // 창이 열리면 댓글 로드
+            if (commentBox.classList.contains('show')) {
+                await loadComments();
+            }
         });
 
         // 댓글 작성 이벤트

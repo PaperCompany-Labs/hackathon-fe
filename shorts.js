@@ -95,3 +95,27 @@ function addCommentToUI(commentText) {
     commentDiv.textContent = commentText;
     commentList.insertBefore(commentDiv, commentList.firstChild);
 }
+
+// 댓글 불러오기 함수
+async function loadComments() {
+    try {
+        const response = await fetch('https://novelshorts-be.duckdns.org/shorts/1/comments', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+            commentList.innerHTML = ''; // 기존 댓글 초기화
+
+            responseData.comments.forEach(comment => {
+                addCommentToUI(comment.content);
+            });
+        } else {
+            console.error('댓글 불러오기 실패:', responseData);
+        }
+    } catch (error) {
+        console.error('댓글 불러오기 요청 실패:', error);
+    }
+}
