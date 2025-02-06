@@ -57,7 +57,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             localStorage.setItem("access_token", result.access_token);
 
             // shorts.html로 이동
-            //window.location.href = "shorts.html";
+            window.location.href = "shorts.html";
         } else {
             alert("로그인 실패: " + (result.detail || "아이디 또는 비밀번호를 확인하세요."));
         }
