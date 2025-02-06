@@ -39,3 +39,50 @@ document.getElementById('likeButton').addEventListener('click', async () => {
         alert('네트워크 오류가 발생했습니다! ' + error.message);
     }
 });
+
+document.getElementById('submitComment').addEventListener('click', async () => {
+    const token = localStorage.getItem('access_token');
+    console.log("🔍 저장된 토큰:", token);
+
+    const commentText = document.getElementById('commentInput').value.trim(); // text 가져오기
+
+    if (!token) {
+        alert('로그인이 필요합니다!');
+        window.location.href = "login.html";
+        return;
+    }
+
+    if (!commentText) {
+        alert('댓글을 입력하세요!');
+        return;
+    }
+
+    try {
+        const response = await fetch('https://novelshorts-be.duckdns.org/shorts/1/comments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ content: commentText })
+        });
+
+        console.log("🔍 요청 헤더 확인:", {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        });
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+            alert('댓글이 작성되었습니다!');
+            addCommentToUI(commentText); // UI에 댓글 추가
+            document.getElementById('commentInput').value = ''; // 입력 필드 초기화
+        } else {
+            alert('댓글 작성 실패: ' + responseData.message);
+        }
+    } catch (error) {
+        console.error('댓글 작성 요청 실패:', error);
+        alert('네트워크 오류가 발생했습니다!');
+    }
+});
