@@ -36,7 +36,7 @@ document.getElementById('signupForm').addEventListener('submit', async (event) =
     console.log("요청 데이터:", requestData); // 디버깅 로그
 
     try {
-        const response = await fetch('https://34.170.172.35:8000/user/signup', {
+        const response = await fetch('https://novelshorts-be.duckdns.org/user/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

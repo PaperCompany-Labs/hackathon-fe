@@ -25,7 +25,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     try {
         console.log("로그인 요청 데이터:", requestData);
 
-        const response = await fetch('https://34.170.172.35:8000/user/login', {
+        const response = await fetch('https://novelshorts-be.duckdns.org/user/login', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
