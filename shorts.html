@@ -171,6 +171,7 @@
 
         // 좋아요 및 댓글 버튼 클릭 이벤트
         likeButton.addEventListener('click', () => {
+            console.log("shorts.html에서 저장된 토큰:", localStorage.getItem('access_token'));
             alert("좋아요를 눌렀습니다!");
         });
 

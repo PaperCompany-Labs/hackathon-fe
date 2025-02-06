@@ -1,60 +1,35 @@
-document.getElementById('signupForm').addEventListener('submit', async (event) => {
-    event.preventDefault(); // 기본 폼 제출 방지
-
-    // 입력값 가져오기
-    const name = document.getElementById('name').value.trim();
-    const userId = document.getElementById('id').value.trim();
-    const password = document.getElementById('password').value;
-    const age = document.getElementById('age').value.trim();
-    const gender = document.querySelector('input[name="gender"]:checked')?.value;
-
-    // **입력값 검증 추가**
-    if (userId.length > 10) {
-        alert("아이디는 최대 10자까지만 가능합니다.");
+document.getElementById('likeButton').addEventListener('click', async () => {
+    const token = localStorage.getItem('access_token'); // 저장된 토큰 가져오기
+    console.log("shorts.html에서 저장된 토큰:", localStorage.getItem('access_token'));
+    if (!token) {
+        alert('로그인이 필요합니다!');
+        window.location.href = "login.html"; // 로그인 페이지로 이동
         return;
     }
-    
-    if (password.length < 8) {
-        alert("비밀번호는 최소 8자 이상이어야 합니다.");
-        return;
-    }
-
-    if (!gender) {
-        alert("성별을 선택해주세요.");
-        return;
-    }
-
-    // 서버에 보낼 JSON 데이터
-    const requestData = {
-        age: age ? parseInt(age) : 0,
-        gender: gender,
-        id: userId,
-        name: name,
-        password: password
-    };
-
-    console.log("요청 데이터:", requestData); // 디버깅 로그
 
     try {
-        const response = await fetch('https://novelshorts-be.duckdns.org/user/signup', {
+        const response = await fetch('https://novelshorts-be.duckdns.org/shorts/1/like', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestData)
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}` // 토큰 추가
+            }
         });
 
-        const result = await response.json();
-        console.log("응답 데이터:", result); // API 응답 확인용 로그
+        console.log('Response status:', response.status);
+        const responseText = await response.text();
+        console.log('Response body:', responseText);
 
-        if (response.ok) {
-            alert('회원가입 성공! 로그인 페이지로 이동합니다.');
-            window.location.href = 'login.html'; // 로그인 페이지로 이동
+        if (response.status === 200) {
+            alert('좋아요를 눌렀습니다!');
+            document.getElementById('likeButton').classList.add('liked'); // 스타일 변경 가능
+        } else if (response.status === 400) {
+            alert('이미 좋아요를 눌렀습니다!');
         } else {
-            alert('회원가입 실패: ' + (result.detail ? result.detail.map(e => e.msg).join(', ') : JSON.stringify(result)));
+            alert('오류가 발생했습니다! 서버 응답: ' + responseText);
         }
     } catch (error) {
-        console.error('회원가입 요청 오류:', error);
-        alert('회원가입 중 오류가 발생했습니다.');
+        console.error('좋아요 요청 실패:', error);
+        alert('네트워크 오류가 발생했습니다! ' + error.message);
     }
 });
