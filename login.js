@@ -25,7 +25,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     try {
         console.log("로그인 요청 데이터:", requestData);
 
-        const response = await fetch('https://34.170.172.35:8000/user/login', {
+        const response = await fetch('https://novelshorts-be.duckdns.org/user/login', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -57,7 +57,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             localStorage.setItem("access_token", result.access_token);
 
             // shorts.html로 이동
-            window.location.href = "shorts.html";
+            //window.location.href = "shorts.html";
         } else {
             alert("로그인 실패: " + (result.detail || "아이디 또는 비밀번호를 확인하세요."));
         }
