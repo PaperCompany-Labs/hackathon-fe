@@ -40,6 +40,7 @@ document.getElementById('likeButton').addEventListener('click', async () => {
     }
 });
 
+// Comment Input
 document.getElementById('submitComment').addEventListener('click', async () => {
     const token = localStorage.getItem('access_token');
     console.log("🔍 저장된 토큰:", token);
@@ -86,3 +87,11 @@ document.getElementById('submitComment').addEventListener('click', async () => {
         alert('네트워크 오류가 발생했습니다!');
     }
 });
+
+// UI에 댓글 추가하는 함수
+function addCommentToUI(commentText) {
+    const commentDiv = document.createElement('div');
+    commentDiv.classList.add('comment-item');
+    commentDiv.textContent = commentText;
+    commentList.insertBefore(commentDiv, commentList.firstChild);
+}
