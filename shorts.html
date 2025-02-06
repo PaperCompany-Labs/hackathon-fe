@@ -69,6 +69,10 @@
             background-color: rgba(0, 0, 0, 0.8);
         }
 
+        #likeButton i {
+            transition: all 0.3s ease;
+        }
+
         /* 댓글 창 스타일 */
         .comment-box {
             position: absolute;
@@ -135,7 +139,7 @@
         <!-- 좋아요 및 댓글 버튼 -->
         <div class="control-buttons">
             <button class="control-button" id="likeButton">
-                <i class="fas fa-heart"></i> <!-- 하트 아이콘 -->
+                <i class="far fa-heart"></i> <!-- 초기 상태: 빈 하트 -->
             </button>
             <button class="control-button" id="commentButton">
                 <i class="fas fa-comment"></i> <!-- 댓글 아이콘 -->
@@ -161,7 +165,7 @@
         const submitComment = document.getElementById('submitComment');
 
         let startY;
-        let isMouseDown = false; // 마우스가 클릭 상태인지를 추적
+        let isMouseDown = false;
         const videoSources = [
             'video2.mp4',
             'video3.mp4',
@@ -169,14 +173,64 @@
         ];
         let currentIndex = 0;
 
-        // 좋아요 및 댓글 버튼 클릭 이벤트
-        likeButton.addEventListener('click', () => {
-            console.log("shorts.html에서 저장된 토큰:", localStorage.getItem('access_token'));
-            alert("좋아요를 눌렀습니다!");
+        // 좋아요 버튼 클릭 이벤트
+        likeButton.addEventListener('click', async () => {
+            const token = localStorage.getItem('access_token');
+            const likeIcon = document.querySelector('#likeButton i');
+
+            if (!token) {
+                alert('로그인이 필요합니다!');
+                window.location.href = "login.html"; 
+                return;
+            }
+
+            try {
+                const likeUrl = 'https://novelshorts-be.duckdns.org/shorts/502/like';
+                
+                if (likeIcon.classList.contains('far')) {
+                    // 좋아요 요청
+                    const response = await fetch(likeUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.status === 200) {
+                        alert('좋아요를 눌렀습니다!');
+                        likeIcon.classList.remove('far', 'fa-heart');
+                        likeIcon.classList.add('fas', 'fa-heart');
+                        likeIcon.style.color = 'red';
+                    } else {
+                        //alert('오류가 발생했습니다!');
+                    }
+                } else {
+                    // 좋아요 취소 요청
+                    const deleteResponse = await fetch(likeUrl, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (deleteResponse.status === 200) {
+                        //alert('좋아요가 취소되었습니다!');
+                        likeIcon.classList.remove('fas', 'fa-heart');
+                        likeIcon.classList.add('far', 'fa-heart');
+                        likeIcon.style.color = 'white';
+                    } else {
+                        //alert('좋아요 취소 실패!');
+                    }
+                }
+            } catch (error) {
+                console.error('좋아요 요청 실패:', error);
+                alert('네트워크 오류가 발생했습니다!');
+            }
         });
 
         commentButton.addEventListener('click', () => {
-            // 댓글 창 슬라이드 업
             commentBox.classList.toggle('show');
         });
 
@@ -184,12 +238,11 @@
         submitComment.addEventListener('click', () => {
             const commentText = commentInput.value.trim();
             if (commentText) {
-                // 댓글을 리스트에 추가
                 const newComment = document.createElement('div');
                 newComment.classList.add('comment-item');
                 newComment.textContent = commentText;
                 commentList.appendChild(newComment);
-                commentInput.value = ''; // 입력란 비우기
+                commentInput.value = '';
             }
         });
 
@@ -201,7 +254,6 @@
         swipeArea.addEventListener('touchend', (e) => {
             const endY = e.changedTouches[0].clientY;
             if (startY - endY > 40) {
-                // 아래로 스와이프: 다음 비디오로 변경
                 changeVideo();
             }
         });
@@ -216,38 +268,33 @@
             if (isMouseDown) {
                 const endY = e.clientY;
                 if (startY - endY > 40) {
-                    // 아래로 드래그: 다음 비디오로 변경
                     changeVideo();
-                    isMouseDown = false; // 드래그 끝나면 상태 초기화
+                    isMouseDown = false;
                 }
                 if (endY - startY > 40) {
-                    // 위로 드래그: 이전 비디오로 변경 (원하는 경우 추가)
                     changeVideo(-1);
-                    isMouseDown = false; // 드래그 끝나면 상태 초기화
+                    isMouseDown = false;
                 }
             }
         });
 
         swipeArea.addEventListener('mouseup', () => {
-            isMouseDown = false; // 마우스를 놓았을 때 상태 초기화
+            isMouseDown = false;
         });
 
         swipeArea.addEventListener('mouseleave', () => {
-            isMouseDown = false; // 마우스가 화면을 벗어나면 상태 초기화
+            isMouseDown = false;
         });
 
         // 동영상 일시정지/재생 기능
         swipeArea.addEventListener('click', () => {
-            console.log('Video clicked!');
             if (video.paused) {
-                console.log('Video is paused, playing now...');
                 video.play();
             } else {
-                console.log('Video is playing, pausing now...');
                 video.pause();
             }
-        });
 
+        });
 
         function changeVideo(direction = 1) {
             currentIndex = (currentIndex + direction + videoSources.length) % videoSources.length;
@@ -256,5 +303,6 @@
         }
     </script>
     <script src="shorts.js"></script>
+
 </body>
 </html>
