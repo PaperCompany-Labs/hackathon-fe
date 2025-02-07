@@ -40,7 +40,7 @@ document.getElementById('likeButton').addEventListener('click', async () => {
     }
 });
 
-// Comment Input
+// 댓글 작성 이벤트
 document.getElementById('submitComment').addEventListener('click', async () => {
     const token = localStorage.getItem('access_token');
     console.log("🔍 저장된 토큰:", token);
@@ -76,7 +76,7 @@ document.getElementById('submitComment').addEventListener('click', async () => {
         });
         
         const responseData = await response.json();
-        console.log("📌 서버 응답:", responseData); // API 응답 확인
+        console.log("서버 응답:", responseData); // API 응답 확인
 
         if (response.ok) {
             alert('댓글이 작성되었습니다!');
@@ -101,8 +101,13 @@ function addCommentToUI(commentText) {
 
 // 댓글 불러오기 함수
 async function loadComments() {
+    const currentPost = posts[currentIndex];
+    
+    // 현재 게시글 번호(no)를 이용해서 좋아요 URL 구성
+    const commentUrl = `https://novelshorts-be.duckdns.org/shorts/${currentPost.no}/like`;
+
     try {
-        const response = await fetch('https://novelshorts-be.duckdns.org/shorts/1/comments', {
+        const response = await fetch(commentUrl, {
             method: 'GET',
             headers: { 'Accept': 'application/json' }
         });
