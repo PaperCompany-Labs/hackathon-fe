@@ -58,22 +58,25 @@ document.getElementById('submitComment').addEventListener('click', async () => {
         return;
     }
 
+    const requestData = {
+        novel_shorts_no : 1,
+        content : commentText
+    };
+
+    console.log("요청 데이터:", requestData); // 디버깅 로그
+
     try {
-        const response = await fetch('https://novelshorts-be.duckdns.org/shorts/1/comments', {
+        const response = await fetch('https://novelshorts-be.duckdns.org/shorts/comment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ content: commentText })
+            body: JSON.stringify(requestData)
         });
-
-        console.log("🔍 요청 헤더 확인:", {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        });
-
+        
         const responseData = await response.json();
+        console.log("📌 서버 응답:", responseData); // API 응답 확인
 
         if (response.ok) {
             alert('댓글이 작성되었습니다!');
