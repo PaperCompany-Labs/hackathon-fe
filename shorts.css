@@ -60,7 +60,7 @@ html {
 
 .control-buttons {
   position: absolute;
-  bottom: 5px; /* 버튼이 아래쪽으로 이동 */
+  bottom: 10px; /* 버튼이 아래쪽으로 이동 */
   right: 20px; /* 오른쪽 정렬 유지 */
   transform: translateY(-30%);
   z-index: 2;
