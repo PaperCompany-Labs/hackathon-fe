@@ -34,10 +34,16 @@
 
     <!-- 댓글 창 -->
     <div class="comment-box" id="commentBox">
+      <!-- 닫기 버튼 추가 -->
+      <button class="close-button" id="closeCommentBox">
+        <i class="fas fa-times"></i>
+      </button>
       <div class="comment-list" id="commentList"></div>
       <textarea id="commentInput" placeholder="댓글을 입력하세요..."></textarea>
       <button id="submitComment">댓글 작성</button>
     </div>
+
+
 
     <!-- 스와이프 영역: 전체 컨테이너를 덮음 -->
     <div class="swipe-area" style="position: absolute; top: 0; left:0; right:0; bottom:0; z-index: 1;"></div>
@@ -56,6 +62,7 @@
     const swipeArea = document.querySelector('.swipe-area');
     const likeButton = document.getElementById('likeButton');
     const commentButton = document.getElementById('commentButton');
+    const closeCommentBox = document.getElementById('closeCommentBox');
     const commentBox = document.getElementById('commentBox');
     const commentInput = document.getElementById('commentInput');
     const commentList = document.getElementById('commentList');
@@ -171,6 +178,11 @@
     // 댓글 창 토글
     commentButton.addEventListener('click', () => {
       commentBox.classList.toggle('show');
+    });
+
+    // 댓글 창 닫기 이벤트
+    closeCommentBox.addEventListener('click', () => {
+      commentBox.classList.remove('show');
     });
 
     // 댓글 작성 이벤트
