@@ -262,12 +262,23 @@
       }
     });
 
-    // 게시글 전환 함수
-    function changePost(direction = 1) {
-      if (posts.length === 0) return;
-      currentIndex = (currentIndex + direction + posts.length) % posts.length;
-      updatePostDisplay();
+  // 게시글 전환 함수
+  function changePost(direction = 1) {
+    if (posts.length === 0) return;
+
+    // 게시물 전환 전, 좋아요 아이콘 상태를 초기화
+    const likeIcon = document.querySelector('#likeButton i');
+    if (likeIcon.classList.contains('fas')) {
+      // 채워진 하트라면 (red 상태), 빈 하트로 변경
+      likeIcon.classList.remove('fas', 'fa-heart');
+      likeIcon.classList.add('far', 'fa-heart');
+      likeIcon.style.color = 'white';
     }
+
+    // 게시물 전환
+    currentIndex = (currentIndex + direction + posts.length) % posts.length;
+    updatePostDisplay();
+  }
 
     // 페이지 로드 시 게시글 불러오기
     loadPosts();
