@@ -1,181 +1,330 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>쇼츠 스타일 웹앱</title>
-    <!-- FontAwesome CDN 추가 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>쇼츠 스타일 웹앱</title>
+  <!-- Google Fonts: Roboto (원하는 다른 폰트로 변경 가능) -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet" />
+  <!-- FontAwesome CDN 추가 -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
 
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
+  <style>
+    /* 모든 요소에 대해 기본 margin, padding 초기화 및 box-sizing 적용 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        .container {
-            width: 375px;
-            height: 812px;
-            overflow: hidden;
-            position: relative;
-            margin: auto;
-            background-color: #000;
-        }
+    body,
+    html {
+      height: 100%;
+      overflow: hidden;
+      background-color: #000;
+      font-family: 'Roboto', sans-serif;
+    }
 
-        .video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    .container {
+      width: 375px;
+      height: 812px;
+      overflow: hidden;
+      position: relative;
+      margin: auto;
+      /* 백그라운드 이미지: 경로가 올바른지 확인하세요.
+         HTML 파일 기준 상대 경로로 지정합니다.
+      background-image: url('hackathon-fe/image%20(2).png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;*/
+    }
 
-        .swipe-area {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
+    /* 게시글(포스트) 영역 */
+    #postDisplay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+      /* 텍스트 가독성을 위한 그림자 효과 */
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+    }
 
-        .control-buttons {
-            position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    /* 제목은 화면 중앙보다 약간 위쪽에 위치 */
+    #postTitle {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
 
-        .control-button {
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            padding: 12px;
-            margin: 10px 0;
-            cursor: pointer;
-            border-radius: 50%;
-            font-size: 24px;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    /* 내용은 제목 아래에 위치 */
+    #postContent {
+      font-size: 18px;
+      line-height: 1.4;
+      max-height: 60%;
+      overflow: auto;
+    }
 
-        .control-button:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
+    /* 오디오는 화면에 보이지 않도록 처리 (백그라운드 재생) */
+    #postAudio {
+      display: none;
+    }
 
-        /* 댓글 창 스타일 */
-        .comment-box {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background-color: #fff;
-            transform: translateY(100%);
-            transition: transform 0.3s ease-in-out;
-            padding: 20px;
-            overflow-y: scroll;
-            box-sizing: border-box;
-        }
+    .control-buttons {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        .comment-box.show {
-            transform: translateY(0);
-        }
+    .control-button {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 12px;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 50%;
+      font-size: 24px;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        .comment-list {
-            margin-bottom: 20px;
-        }
+    .control-button:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
 
-        .comment-item {
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: #333;
-        }
+    #likeButton i {
+      transition: all 0.3s ease;
+    }
 
-        textarea {
-            width: 100%;
-            height: 50px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            resize: none;
-        }
+    /* 댓글 창 스타일 */
+    .comment-box {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background-color: #fff;
+      transform: translateY(100%);
+      transition: transform 0.3s ease-in-out;
+      padding: 20px;
+      overflow-y: scroll;
+      z-index: 3;
+    }
 
-        #submitComment {
-            width: 100%;
-            padding: 10px;
-            background-color: #6a4cfc;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
+    .comment-box.show {
+      transform: translateY(0);
+    }
 
-        #submitComment:hover {
-            background-color: #5a3bd2;
-        }
-    </style>
+    .comment-list {
+      margin-bottom: 20px;
+    }
+
+    .comment-item {
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    textarea {
+      width: 100%;
+      height: 50px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      resize: none;
+    }
+
+    #submitComment {
+      width: 100%;
+      padding: 10px;
+      background-color: #6a4cfc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    #submitComment:hover {
+      background-color: #5a3bd2;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <video class="video" id="videoPlayer" autoplay loop muted>
-            <source src="video2.mp4" type="video/mp4">
-            비디오가 지원되지 않는 브라우저입니다.
-        </video>
-        <div class="swipe-area"></div>
-
-        <!-- 좋아요 및 댓글 버튼 -->
-        <div class="control-buttons">
-            <button class="control-button" id="likeButton">
-                <i class="fas fa-heart"></i> <!-- 하트 아이콘 -->
-            </button>
-            <button class="control-button" id="commentButton">
-                <i class="fas fa-comment"></i> <!-- 댓글 아이콘 -->
-            </button>
-        </div>
-
-        <!-- 댓글 창 -->
-        <div class="comment-box" id="commentBox">
-            <textarea id="commentInput" placeholder="댓글을 입력하세요..."></textarea>
-            <button id="submitComment">댓글 작성</button>
-            <div class="comment-list" id="commentList"></div>
-        </div>
+  <div class="container">
+    <!-- 게시글 표시 영역 -->
+    <div id="postDisplay">
+      <div id="postTitle"></div>
+      <div id="postContent"></div>
     </div>
 
-    <script>
-        const swipeArea = document.querySelector('.swipe-area');
-        const video = document.querySelector('#videoPlayer');
-        const likeButton = document.getElementById('likeButton');
-        const commentButton = document.getElementById('commentButton');
-        const commentBox = document.getElementById('commentBox');
-        const commentInput = document.getElementById('commentInput');
-        const commentList = document.getElementById('commentList');
-        const submitComment = document.getElementById('submitComment');
+    <!-- 음악 재생용 오디오 요소 -->
+    <audio id="postAudio" autoplay loop></audio>
 
-        let startY;
-        let isMouseDown = false; // 마우스가 클릭 상태인지를 추적
-        const videoSources = [
-            'video2.mp4',
-            'video3.mp4',
-            'video1.mp4'
-        ];
-        let currentIndex = 0;
+    <!-- 좋아요 및 댓글 버튼 -->
+    <div class="control-buttons">
+      <button class="control-button" id="likeButton">
+        <i class="far fa-heart"></i>
+      </button>
+      <button class="control-button" id="commentButton">
+        <i class="fas fa-comment"></i>
+      </button>
+    </div>
 
-        // 좋아요 및 댓글 버튼 클릭 이벤트
-        likeButton.addEventListener('click', () => {
-            console.log("shorts.html에서 저장된 토큰:", localStorage.getItem('access_token'));
-            alert("좋아요를 눌렀습니다!");
-        });
+    <!-- 댓글 창 -->
+    <div class="comment-box" id="commentBox">
+      <div class="comment-list" id="commentList"></div>
+      <textarea id="commentInput" placeholder="댓글을 입력하세요..."></textarea>
+      <button id="submitComment">댓글 작성</button>
+    </div>
 
-        commentButton.addEventListener('click', async () => {
+    <!-- 스와이프 영역: 전체 컨테이너를 덮음 -->
+    <div class="swipe-area" style="position: absolute; top: 0; left:0; right:0; bottom:0; z-index: 1;"></div>
+  </div>
+
+  <script>
+    let posts = [];
+    let currentIndex = 0;
+    let isRequestInProgress = false; // 좋아요 요청 중복 방지용
+
+    // DOM 요소들
+    const postDisplay = document.getElementById('postDisplay');
+    const postTitle = document.getElementById('postTitle');
+    const postContent = document.getElementById('postContent');
+    const postAudio = document.getElementById('postAudio');
+    const swipeArea = document.querySelector('.swipe-area');
+    const likeButton = document.getElementById('likeButton');
+    const commentButton = document.getElementById('commentButton');
+    const commentBox = document.getElementById('commentBox');
+    const commentInput = document.getElementById('commentInput');
+    const commentList = document.getElementById('commentList');
+    const submitComment = document.getElementById('submitComment');
+
+    // API에서 게시글 불러오기
+    async function loadPosts() {
+      try {
+        const response = await fetch(
+          'https://novelshorts-be.duckdns.org/shorts?limit=10&offset=0',
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json'
+            }
+          }
+        );
+        if (!response.ok) {
+          console.error('게시글 불러오기 실패', response.status);
+          return;
+        }
+        posts = await response.json();
+        if (posts.length > 0) {
+          updatePostDisplay();
+        }
+      } catch (error) {
+        console.error('게시글 불러오기 오류:', error);
+      }
+    }
+
+    // 현재 게시글을 화면에 표시하는 함수
+    function updatePostDisplay() {
+      const currentPost = posts[currentIndex];
+      postTitle.textContent = currentPost.title || '';
+      postContent.textContent = currentPost.content || '';
+
+      // 오디오 요소 업데이트 및 재생 (음악 URL)
+      if (currentPost.music) {
+        postAudio.src = currentPost.music;
+        postAudio
+          .play()
+          .catch((err) => console.error('음악 재생 실패:', err));
+      } else {
+        postAudio.src = '';
+      }
+    }
+
+    // 좋아요 버튼 클릭 이벤트
+    likeButton.addEventListener('click', async () => {
+      if (isRequestInProgress) return;
+      isRequestInProgress = true;
+
+      const token = localStorage.getItem('access_token');
+      const likeIcon = document.querySelector('#likeButton i');
+      const currentPost = posts[currentIndex];
+
+      if (!token) {
+        alert('로그인이 필요합니다!');
+        window.location.href = 'login.html';
+        isRequestInProgress = false;
+        return;
+      }
+
+      // 현재 게시글 번호(no)를 이용해서 좋아요 URL 구성
+      const likeUrl = `https://novelshorts-be.duckdns.org/shorts/${currentPost.no}/like`;
+
+      try {
+        let response;
+        if (likeIcon.classList.contains('far')) {
+          response = await fetch(likeUrl, {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${token}`
+            }
+          });
+        } else {
+          response = await fetch(likeUrl, {
+            method: 'DELETE',
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${token}`
+            }
+          });
+        }
+
+        if (response.ok) {
+          updateLikeUI(likeIcon);
+        } else {
+          console.error(`서버 응답 실패: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('좋아요 요청 실패:', error);
+      } finally {
+        setTimeout(() => {
+          isRequestInProgress = false;
+        }, 500);
+      }
+    });
+
+    function updateLikeUI(likeIcon) {
+      if (likeIcon.classList.contains('far')) {
+        likeIcon.classList.remove('far', 'fa-heart');
+        likeIcon.classList.add('fas', 'fa-heart');
+        likeIcon.style.color = 'red';
+      } else {
+        likeIcon.classList.remove('fas', 'fa-heart');
+        likeIcon.classList.add('far', 'fa-heart');
+        likeIcon.style.color = 'white';
+      }
+    }
+
+    commentButton.addEventListener('click', async () => {
             // 댓글 창 토글
             commentBox.classList.toggle('show');
 
@@ -183,70 +332,73 @@
             if (commentBox.classList.contains('show')) {
                 await loadComments();
             }
-        });
+          });
 
-        // 터치 이벤트
-        swipeArea.addEventListener('touchstart', (e) => {
-            startY = e.touches[0].clientY;
-        });
+    // Swipe(터치/마우스) 이벤트로 게시글 전환
+    let startY;
+    let isMouseDown = false;
 
-        swipeArea.addEventListener('touchend', (e) => {
-            const endY = e.changedTouches[0].clientY;
-            if (startY - endY > 40) {
-                // 아래로 스와이프: 다음 비디오로 변경
-                changeVideo();
-            }
-        });
+    // 터치 이벤트
+    swipeArea.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+    });
 
-        // 마우스 이벤트
-        swipeArea.addEventListener('mousedown', (e) => {
-            isMouseDown = true;
-            startY = e.clientY;
-        });
+    swipeArea.addEventListener('touchend', (e) => {
+      const endY = e.changedTouches[0].clientY;
+      if (startY - endY > 40) {
+        changePost();
+      }
+      if (endY - startY > 40) {
+        changePost(-1);
+      }
+    });
 
-        swipeArea.addEventListener('mousemove', (e) => {
-            if (isMouseDown) {
-                const endY = e.clientY;
-                if (startY - endY > 40) {
-                    // 아래로 드래그: 다음 비디오로 변경
-                    changeVideo();
-                    isMouseDown = false; // 드래그 끝나면 상태 초기화
-                }
-                if (endY - startY > 40) {
-                    // 위로 드래그: 이전 비디오로 변경 (원하는 경우 추가)
-                    changeVideo(-1);
-                    isMouseDown = false; // 드래그 끝나면 상태 초기화
-                }
-            }
-        });
+    // 마우스 이벤트
+    swipeArea.addEventListener('mousedown', (e) => {
+      isMouseDown = true;
+      startY = e.clientY;
+    });
 
-        swipeArea.addEventListener('mouseup', () => {
-            isMouseDown = false; // 마우스를 놓았을 때 상태 초기화
-        });
-
-        swipeArea.addEventListener('mouseleave', () => {
-            isMouseDown = false; // 마우스가 화면을 벗어나면 상태 초기화
-        });
-
-        // 동영상 일시정지/재생 기능
-        swipeArea.addEventListener('click', () => {
-            console.log('Video clicked!');
-            if (video.paused) {
-                console.log('Video is paused, playing now...');
-                video.play();
-            } else {
-                console.log('Video is playing, pausing now...');
-                video.pause();
-            }
-        });
-
-
-        function changeVideo(direction = 1) {
-            currentIndex = (currentIndex + direction + videoSources.length) % videoSources.length;
-            video.src = videoSources[currentIndex];
-            video.play();
+    swipeArea.addEventListener('mousemove', (e) => {
+      if (isMouseDown) {
+        const endY = e.clientY;
+        if (startY - endY > 40) {
+          changePost();
+          isMouseDown = false;
         }
-    </script>
-    <script src="shorts.js"></script>
+        if (endY - startY > 40) {
+          changePost(-1);
+          isMouseDown = false;
+        }
+      }
+    });
+
+    swipeArea.addEventListener('mouseup', () => {
+      isMouseDown = false;
+    });
+
+    swipeArea.addEventListener('mouseleave', () => {
+      isMouseDown = false;
+    });
+
+    // 클릭 시 음악 재생/일시정지
+    swipeArea.addEventListener('click', () => {
+      if (postAudio.paused) {
+        postAudio.play();
+      } else {
+        postAudio.pause();
+      }
+    });
+
+    // 게시글 전환 함수
+    function changePost(direction = 1) {
+      if (posts.length === 0) return;
+      currentIndex = (currentIndex + direction + posts.length) % posts.length;
+      updatePostDisplay();
+    }
+
+    // 페이지 로드 시 게시글 불러오기
+    loadPosts();
+  </script>
 </body>
 </html>
