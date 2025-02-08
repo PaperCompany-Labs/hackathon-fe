@@ -5,12 +5,17 @@
   box-sizing: border-box;
 }
 
+@font-face
+{
+  font-family: 'CustomFont';  src: url('fonts/ridi.otf') format('opentype');
+}
+
 body,
 html {
   height: 100%;
   overflow: hidden;
-  background-color: #f0e6ff; /* 연한 보라색 배경 */
-  font-family: 'Roboto', sans-serif;
+  background-color: white;
+  font-family: 'CustomFont', 'Roboto', sans-serif;
 }
 
 .container {
@@ -47,7 +52,7 @@ html {
 }
 
 #postContent {
-  font-size: 18px;
+  font-size: 15px;
   line-height: 1.4;
   max-height: 60%;
   overflow: auto;
@@ -152,17 +157,18 @@ textarea {
 #submitComment {
   width: 100%;
   padding: 10px;
-  background-color: #6a4cfc;
+  background-color: #01cfff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
   margin-top: 10px;
+  font-family: 'CustomFont', Arial, sans-serif;
 }
 
 #submitComment:hover {
-  background-color: #5a3bd2;
+  background-color: #00abd1;
 }
 
 /* 스와이프 영역 */

@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입</title>
     <style>
+        @font-face
+        {
+            font-family: 'CustomFont';  src: url('fonts/ridi.otf') format('opentype');
+        }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'CustomFont', Arial, sans-serif;
             background-color: #f7f7f7;
             display: flex;
             justify-content: center;
@@ -31,7 +35,7 @@
         }
 
         h1 {
-            color: #6a4cfc;
+            color: #9a33c2;
             font-size: 26px;
             margin-bottom: 15px;
         }
@@ -69,40 +73,41 @@
 
         .gender-option {
             padding: 12px 20px;
-            border: 2px solid #6a4cfc;
+            border: 2px solid #9a33c2;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
             background-color: white;
-            color: #6a4cfc;
+            color: #9a33c2;
             transition: all 0.3s;
             flex: 1;
             text-align: center;
         }
 
         .gender-option.active {
-            background-color: #6a4cfc;
+            background-color: #9a33c2;
             color: white;
         }
 
         .signup-button {
             width: 100%;
             padding: 15px;
-            background-color: #6a4cfc;
+            background-color: #9a33c2;
             color: white;
             font-size: 16px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             margin-top: 15px;
+            font-family: 'CustomFont', Arial, sans-serif;
         }
 
         .signup-button:hover {
-            background-color: #5a3bd2;
+            background-color: #9a33c2;
         }
 
         .login-link {
-            color: #6a4cfc;
+            color: #9a33c2;
             font-size: 14px;
             text-decoration: none;
             display: block;

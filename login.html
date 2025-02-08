@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=375, height=812, initial-scale=1.0">
     <title>로그인 화면</title>
     <style>
+        @font-face
+        {
+            font-family: 'CustomFont';  src: url('fonts/ridi.otf') format('opentype');
+        }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'CustomFont', Arial, sans-serif;
             background-color: #f7f7f7;
             display: flex;
             justify-content: center;
@@ -31,7 +35,7 @@
         }
 
         h1 {
-            color: #6a4cfc;
+            color: #f60894;
             font-size: 26px;
             margin-bottom: 15px;
         }
@@ -61,7 +65,7 @@
         }
 
         .forgot-password {
-            color: #6a4cfc;
+            color: #f60894;
             font-size: 14px;
             text-decoration: none;
             display: block;
@@ -71,7 +75,7 @@
         .login-button {
             width: 100%;
             padding: 15px;
-            background-color: #6a4cfc;
+            background-color: #f60894;
             color: white;
             font-size: 16px;
             border: none;
@@ -81,11 +85,11 @@
         }
 
         .login-button:hover {
-            background-color: #5a3bd2;
+            background-color: #d0077d;
         }
 
         .signup-link {
-            color: #6a4cfc;
+            color: #f60894;
             font-size: 14px;
             text-decoration: none;
             display: block;
