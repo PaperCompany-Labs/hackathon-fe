@@ -212,10 +212,9 @@
 
     <!-- 댓글 창 -->
     <div class="comment-box" id="commentBox">
-      <div class="comment-list" id="commentList"></div>
       <textarea id="commentInput" placeholder="댓글을 입력하세요..."></textarea>
       <button id="submitComment">댓글 작성</button>
-    </div>
+      <div class="comment-list" id="commentList"></div>
     </div>
 
     <!-- 스와이프 영역: 전체 컨테이너를 덮음 -->
@@ -265,6 +264,23 @@
       }
     }
 
+    // 현재 게시글을 화면에 표시하는 함수
+    function updatePostDisplay() {
+      const currentPost = posts[currentIndex];
+      postTitle.textContent = currentPost.title || '';
+      postContent.textContent = currentPost.content || '';
+
+      // 오디오 요소 업데이트 및 재생 (음악 URL)
+      if (currentPost.music) {
+        postAudio.src = currentPost.music;
+        postAudio
+          .play()
+          .catch((err) => console.error('음악 재생 실패:', err));
+      } else {
+        postAudio.src = '';
+      }
+    }
+
     // API에서 댓글 불러오기
     async function loadComments() {
       try {
@@ -289,24 +305,6 @@
         });
       } catch (error) {
         console.error("댓글 불러오기 오류:", error);
-      }
-    }
-
-    // 현재 게시글을 화면에 표시하는 함수
-    function updatePostDisplay() {
-      const currentPost = posts[currentIndex];
-      postTitle.textContent = currentPost.title || '';
-      postContent.textContent = currentPost.content || '';
-      consloe.log('post 정보 :', currentPost)
-
-      // 오디오 요소 업데이트 및 재생 (음악 URL)
-      if (currentPost.music) {
-        postAudio.src = currentPost.music;
-        postAudio
-          .play()
-          .catch((err) => console.error('음악 재생 실패:', err));
-      } else {
-        postAudio.src = '';
       }
     }
 
@@ -375,15 +373,10 @@
       }
     }
 
-    commentButton.addEventListener('click', async () => {
-            // 댓글 창 토글
-            commentBox.classList.toggle('show');
-
-            // 창이 열리면 댓글 로드
-            if (commentBox.classList.contains('show')) {
-                await loadComments();
-            }
-          });
+    // 댓글 창 토글
+    commentButton.addEventListener('click', () => {
+      commentBox.classList.toggle('show');
+    });
 
     // 댓글 작성 이벤트
     submitComment.addEventListener('click', async () => {
