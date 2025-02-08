@@ -128,41 +128,38 @@ document.addEventListener('DOMContentLoaded', () => {
           likeIcon.style.color = 'white';
       }
   }
-
-	// UI에 댓글 추가하는 함수
-	function addCommentToUI(commentText) {
-			const commentDiv = document.createElement('div');
-			commentDiv.classList.add('comment-item');
-			commentDiv.textContent = commentText;
-			commentList.insertBefore(commentDiv, commentList.firstChild);
-	}
-
-	// 댓글 불러오기 함수
-	async function loadComments() {
-			const currentPost = posts[currentIndex];
-			
-			// 현재 게시글 번호(no)를 이용해서 comment URL 구성
-			const commentUrl = `https://novelshorts-be.duckdns.org/shorts/${currentPost.no}/comment`;
-
-			try {
-					const response = await fetch(commentUrl, {
-							method: 'GET',
-							headers: { 'Accept': 'application/json' }
-					});
-
-					const responseData = await response.json();
-
-					if (response.ok) {
-							commentList.innerHTML = ''; // 기존 댓글 초기화
-
-							responseData.comments.forEach(comment => {
-									addCommentToUI(comment.content);
-							});
-					} else {
-							console.error('댓글 불러오기 실패:', responseData);
-					}
-			} catch (error) {
-					console.error('댓글 불러오기 요청 실패:', error);
-			}
-	}
   
+  // 댓글 추가 함수
+  function addCommentToUI(comment, cm_user_no) {
+    const commentDiv = document.createElement("div");
+    commentDiv.classList.add("comment-item");
+
+    // 현재 로그인한 사용자 번호 가져오기
+    const currentUserNo = localStorage.getItem("user_no");
+
+    commentDiv.innerHTML = `
+      <span class="comment-content">${comment}</span>
+      <div class="comment-actions"></div>
+    `;
+
+    const actionsContainer = commentDiv.querySelector(".comment-actions");
+
+    // 댓글 작성자와 현재 로그인한 사용자가 같을 때만 수정 & 삭제 버튼 추가
+    if (currentUserNo && Number(currentUserNo) === cm_user_no) {
+      const editButton = document.createElement("button");
+      editButton.classList.add("edit-comment");
+      editButton.innerHTML = "✏️";
+      editButton.addEventListener("click", () => editComment(commentDiv));
+
+      const deleteButton = document.createElement("button");
+      deleteButton.classList.add("delete-comment");
+      deleteButton.innerHTML = "❌";
+      deleteButton.style.color = "red";
+      deleteButton.addEventListener("click", () => deleteComment(commentDiv));
+
+      actionsContainer.appendChild(editButton);
+      actionsContainer.appendChild(deleteButton);
+    }
+
+    document.getElementById("commentList").prepend(commentDiv);
+  }
