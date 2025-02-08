@@ -136,9 +136,13 @@
     }
 
     .comment-item {
-      margin-bottom: 10px;
-      font-size: 14px;
-      color: #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      margin-bottom: 8px;
     }
 
     textarea {
@@ -248,6 +252,7 @@
       const currentPost = posts[currentIndex];
       postTitle.textContent = currentPost.title || '';
       postContent.textContent = currentPost.content || '';
+      consloe.log('post 정보 :', currentPost)
 
       // 오디오 요소 업데이트 및 재생 (음악 URL)
       if (currentPost.music) {
@@ -338,9 +343,7 @@
     // 댓글 작성 이벤트
 		document.getElementById('submitComment').addEventListener('click', async () => {
 			const token = localStorage.getItem('access_token');
-			console.log("🔍 저장된 토큰:", token);
-
-			const commentText = document.getElementById('commentInput').value.trim(); // text 가져오기
+			const commentText = commentInput.value.trim(); // text 가져오기
 			const currentPost = posts[currentIndex];
 
 			if (!token) {
@@ -387,6 +390,108 @@
 					alert('네트워크 오류가 발생했습니다!');
 			}
 		});
+
+    // 댓글 추가 함수
+    function addCommentToUI(comment, cm_user_no) {
+      const commentDiv = document.createElement("div");
+      commentDiv.classList.add("comment-item");
+
+      // 현재 로그인한 사용자 번호 가져오기
+      const currentUserNo = localStorage.getItem("user_no");
+
+      commentDiv.innerHTML = `
+        <span class="comment-content">${comment}</span>
+        <div class="comment-actions"></div>
+      `;
+
+      const actionsContainer = commentDiv.querySelector(".comment-actions");
+
+      // 댓글 작성자와 현재 로그인한 사용자가 같을 때만 수정 & 삭제 버튼 추가
+      if (currentUserNo && Number(currentUserNo) === cm_user_no) {
+        
+        const currentcommentno = comment_no; // comment no 가져오기
+
+        const editButton = document.createElement("button");
+        editButton.classList.add("edit-comment");
+        editButton.innerHTML = "✏️";
+        editButton.addEventListener("click", () => editComment(commentDiv, comment_no));
+
+        const deleteButton = document.createElement("button");
+        deleteButton.classList.add("delete-comment");
+        deleteButton.innerHTML = "❌";
+        deleteButton.style.color = "red";
+        deleteButton.addEventListener("click", () => deleteComment(commentDiv, comment_no));
+
+        actionsContainer.appendChild(editButton);
+        actionsContainer.appendChild(deleteButton);
+      }
+
+      document.getElementById("commentList").prepend(commentDiv);
+    }
+
+    // 댓글 수정 함수
+    async function editComment(commentItem, comment_no) {
+      const commentContent = commentItem.querySelector(".comment-content");
+      const newContent = prompt("수정할 댓글을 입력하세요:", commentContent.textContent);
+      if (newContent === null || newContent.trim() === "") return; // 사용자가 취소하면 종료
+      
+      try {
+        const response = await fetch(`https://novelshorts-be.duckdns.org/shorts/comment/${comment_no}`, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(
+              {content : newContent}
+            )
+        });
+
+        const responseData = await response.json();
+        console.log("서버 응답:", responseData); // API 응답 확인
+
+        if (response.ok) {
+          commentContent.textContent = newContent; // UI에서 업데이트
+          alert("댓글이 수정되었습니다.");
+        } else {
+          alert("댓글 수정 실패:" + responseData.message);
+        }
+      } catch (error) {
+        console.error('댓글 수정 요청 실패:', error);
+        alert('네트워크 오류가 발생했습니다!');
+      }
+      
+    }
+
+    // 댓글 삭제 함수
+    async function deleteComment(commentItem, comment_no) {
+      if (confirm("댓글을 삭제하시겠습니까?")) return;
+
+      const comment_no = comment_no; // comment no 가져오기
+
+      try {
+        const response = await fetch(`https://novelshorts-be.duckdns.org/shorts/comment/${comment_no}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const responseData = await response.json();
+        console.log("서버 응답:", responseData); // API 응답 확인
+
+        if (response.ok) {
+          commentItem.remove(); // UI에서만 삭제
+          alert("댓글이 삭제되었습니다.");
+        } else {
+          alert("댓글 삭제 실패:" + responseData.message)
+        }
+      } catch (error) {
+        console.error('댓글 삭제 요청 실패:', error);
+        alert('네트워크 오류가 발생했습니다!');
+      }
+    }
 
     // Swipe(터치/마우스) 이벤트로 게시글 전환
     let startY;
