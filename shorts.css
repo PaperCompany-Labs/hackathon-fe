@@ -16,11 +16,14 @@ html {
   overflow: hidden;
   background-color: white;
   font-family: 'CustomFont', 'Roboto', sans-serif;
-}
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
+}
 .container {
   width: 375px;
-  height: 812px;
+  height: 90%;
   overflow: hidden;
   position: relative;
   margin: auto;
