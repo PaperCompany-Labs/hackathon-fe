@@ -2,21 +2,27 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원가입</title>
+    <meta name="viewport" content="width=375, height=812, initial-scale=1.0">
+    <title>회원 가입</title>
     <style>
-        @font-face
-        {
-            font-family: 'CustomFont';  src: url('fonts/ridi.otf') format('opentype');
+        @font-face {
+            font-family: 'CustomFont'; 
+            src: url('./fonts/RIDIBatang.otf') format('opentype');
         }
-        body {
+        
+        /* 모든 요소에 커스텀 폰트 적용 */
+        html, body, * {
             font-family: 'CustomFont', Arial, sans-serif;
+        }
+        
+        body {
             background-color: #f7f7f7;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            overflow-x: hidden; /* 좌우 스크롤 방지 */
         }
 
         .signup-container {
@@ -26,7 +32,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 375px;
-            height: 90%;
+            height: 90%; 
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -99,7 +105,6 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 15px;
-            font-family: 'CustomFont', Arial, sans-serif;
         }
 
         .signup-button:hover {
@@ -113,7 +118,7 @@
             display: block;
             margin-top: 15px;
         }
-
+        
         /* 라디오 버튼 숨기기 */
         .gender-radio {
             display: none;
@@ -209,6 +214,26 @@
             if (!valid) {
                 event.preventDefault(); // 폼 제출 방지
             }
+        });
+
+        // Mouse swipe detection for back navigation: 오른쪽으로 드래그하면 로그인 페이지로 이동
+        let isMouseDown = false;
+        let mouseStartX = 0;
+        const swipeThreshold = 50; // 오른쪽으로 드래그한 최소 픽셀
+
+        document.addEventListener('mousedown', function(event) {
+            isMouseDown = true;
+            mouseStartX = event.screenX;
+        });
+
+        document.addEventListener('mouseup', function(event) {
+            if (isMouseDown) {
+                const mouseEndX = event.screenX;
+                if (mouseEndX - mouseStartX > swipeThreshold) {
+                    window.location.href = "login.html";
+                }
+            }
+            isMouseDown = false;
         });
     </script>
 

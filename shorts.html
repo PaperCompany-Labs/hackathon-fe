@@ -4,12 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>쇼츠 스타일 웹앱</title>
-  <!-- Google Fonts: Roboto (원하는 다른 폰트로 변경 가능) -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet" />
-  <!-- FontAwesome CDN 추가 -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="shorts.css" />
-
 </head>
 <body>
   <div class="container">
@@ -34,7 +31,7 @@
 
     <!-- 댓글 창 -->
     <div class="comment-box" id="commentBox">
-      <!-- 닫기 버튼 추가 -->
+      <!-- 닫기 버튼 -->
       <button class="close-button" id="closeCommentBox">
         <i class="fas fa-times"></i>
       </button>
@@ -43,245 +40,11 @@
       <button id="submitComment">댓글 작성</button>
     </div>
 
-
-
-    <!-- 스와이프 영역: 전체 컨테이너를 덮음 -->
-    <div class="swipe-area" style="position: absolute; top: 0; left:0; right:0; bottom:0; z-index: 1;"></div>
+    <!-- 스와이프 영역- -->
+    <div class="swipe-area"></div>
   </div>
 
-  <script>
-    let posts = [];
-    let currentIndex = 0;
-    let isRequestInProgress = false; // 좋아요 요청 중복 방지용
-
-    // DOM 요소들
-    const postDisplay = document.getElementById('postDisplay');
-    const postTitle = document.getElementById('postTitle');
-    const postContent = document.getElementById('postContent');
-    const postAudio = document.getElementById('postAudio');
-    const swipeArea = document.querySelector('.swipe-area');
-    const likeButton = document.getElementById('likeButton');
-    const commentButton = document.getElementById('commentButton');
-    const closeCommentBox = document.getElementById('closeCommentBox');
-    const commentBox = document.getElementById('commentBox');
-    const commentInput = document.getElementById('commentInput');
-    const commentList = document.getElementById('commentList');
-    const submitComment = document.getElementById('submitComment');
-
-    // API에서 게시글 불러오기
-    async function loadPosts() {
-      try {
-        const response = await fetch(
-          'https://novelshorts-be.duckdns.org/shorts?limit=10&offset=0',
-          {
-            method: 'GET',
-            headers: {
-              Accept: 'application/json'
-            }
-          }
-        );
-        if (!response.ok) {
-          console.error('게시글 불러오기 실패', response.status);
-          return;
-        }
-        posts = await response.json();
-
-        shuffleArray(posts);
-
-        if (posts.length > 0) {
-          updatePostDisplay();
-        }
-      } catch (error) {
-        console.error('게시글 불러오기 오류:', error);
-      }
-    }
-
-    // 현재 게시글을 화면에 표시하는 함수
-    function updatePostDisplay() {
-      const currentPost = posts[currentIndex];
-      postTitle.textContent = currentPost.title || '';
-      postContent.textContent = currentPost.content || '';
-
-      // 오디오 요소 업데이트 및 재생 (음악 URL)
-      if (currentPost.music) {
-        postAudio.src = currentPost.music;
-        postAudio
-          .play()
-          .catch((err) => console.error('음악 재생 실패:', err));
-      } else {
-        postAudio.src = '';
-      }
-    }
-
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-  }
-    // 좋아요 버튼 클릭 이벤트
-    likeButton.addEventListener('click', async () => {
-      if (isRequestInProgress) return;
-      isRequestInProgress = true;
-
-      const token = localStorage.getItem('access_token');
-      const likeIcon = document.querySelector('#likeButton i');
-      const currentPost = posts[currentIndex];
-
-      if (!token) {
-        alert('로그인이 필요합니다!');
-        window.location.href = 'login.html';
-        isRequestInProgress = false;
-        return;
-      }
-
-      // 현재 게시글 번호(no)를 이용해서 좋아요 URL 구성
-      const likeUrl = `https://novelshorts-be.duckdns.org/shorts/${currentPost.no}/like`;
-
-      try {
-        let response;
-        if (likeIcon.classList.contains('far')) {
-          response = await fetch(likeUrl, {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${token}`
-            }
-          });
-        } else {
-          response = await fetch(likeUrl, {
-            method: 'DELETE',
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${token}`
-            }
-          });
-        }
-
-        if (response.ok) {
-          updateLikeUI(likeIcon);
-        } else {
-          console.error(`서버 응답 실패: ${response.status}`);
-        }
-      } catch (error) {
-        console.error('좋아요 요청 실패:', error);
-      } finally {
-        setTimeout(() => {
-          isRequestInProgress = false;
-        }, 500);
-      }
-    });
-
-    function updateLikeUI(likeIcon) {
-      if (likeIcon.classList.contains('far')) {
-        likeIcon.classList.remove('far', 'fa-heart');
-        likeIcon.classList.add('fas', 'fa-heart');
-        likeIcon.style.color = 'red';
-      } else {
-        likeIcon.classList.remove('fas', 'fa-heart');
-        likeIcon.classList.add('far', 'fa-heart');
-        likeIcon.style.color = 'white';
-      }
-    }
-
-    // 댓글 창 토글
-    commentButton.addEventListener('click', () => {
-      commentBox.classList.toggle('show');
-    });
-
-    // 댓글 창 닫기 이벤트
-    closeCommentBox.addEventListener('click', () => {
-      commentBox.classList.remove('show');
-    });
-
-    // 댓글 작성 이벤트
-    submitComment.addEventListener('click', () => {
-      const commentText = commentInput.value.trim();
-      if (commentText) {
-        const newComment = document.createElement('div');
-        newComment.classList.add('comment-item');
-        newComment.textContent = commentText;
-        commentList.appendChild(newComment);
-        commentInput.value = '';
-      }
-    });
-
-    // Swipe(터치/마우스) 이벤트로 게시글 전환
-    let startY;
-    let isMouseDown = false;
-
-    // 터치 이벤트
-    swipeArea.addEventListener('touchstart', (e) => {
-      startY = e.touches[0].clientY;
-    });
-
-    swipeArea.addEventListener('touchend', (e) => {
-      const endY = e.changedTouches[0].clientY;
-      if (startY - endY > 40) {
-        changePost();
-      }
-      if (endY - startY > 40) {
-        changePost(-1);
-      }
-    });
-
-    // 마우스 이벤트
-    swipeArea.addEventListener('mousedown', (e) => {
-      isMouseDown = true;
-      startY = e.clientY;
-    });
-
-    swipeArea.addEventListener('mousemove', (e) => {
-      if (isMouseDown) {
-        const endY = e.clientY;
-        if (startY - endY > 40) {
-          changePost();
-          isMouseDown = false;
-        }
-        if (endY - startY > 40) {
-          changePost(-1);
-          isMouseDown = false;
-        }
-      }
-    });
-
-    swipeArea.addEventListener('mouseup', () => {
-      isMouseDown = false;
-    });
-
-    swipeArea.addEventListener('mouseleave', () => {
-      isMouseDown = false;
-    });
-
-    // 클릭 시 음악 재생/일시정지
-    swipeArea.addEventListener('click', () => {
-      if (postAudio.paused) {
-        postAudio.play();
-      } else {
-        postAudio.pause();
-      }
-    });
-
-  // 게시글 전환 함수
-  function changePost(direction = 1) {
-    if (posts.length === 0) return;
-
-    // 게시물 전환 전, 좋아요 아이콘 상태를 초기화
-    const likeIcon = document.querySelector('#likeButton i');
-    if (likeIcon.classList.contains('fas')) {
-      // 채워진 하트라면 (red 상태), 빈 하트로 변경
-      likeIcon.classList.remove('fas', 'fa-heart');
-      likeIcon.classList.add('far', 'fa-heart');
-      likeIcon.style.color = 'white';
-    }
-
-    // 게시물 전환
-    currentIndex = (currentIndex + direction + posts.length) % posts.length;
-    updatePostDisplay();
-  }
-
-    // 페이지 로드 시 게시글 불러오기
-    loadPosts();
-  </script>
+  <!-- 자바스크립트 파일 참조 -->
+  <script src="shorts.js"></script>
 </body>
 </html>
