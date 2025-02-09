@@ -8,164 +8,8 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet" />
   <!-- FontAwesome CDN 추가 -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="shorts.css" />
 
-  <style>
-    /* 모든 요소에 대해 기본 margin, padding 초기화 및 box-sizing 적용 */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body,
-    html {
-      height: 100%;
-      overflow: hidden;
-      background-color: #000;
-      font-family: 'Roboto', sans-serif;
-    }
-
-    .container {
-      width: 375px;
-      height: 812px;
-      overflow: hidden;
-      position: relative;
-      margin: auto;
-      /* 백그라운드 이미지: 경로가 올바른지 확인하세요.
-         HTML 파일 기준 상대 경로로 지정합니다.
-      background-image: url('hackathon-fe/image%20(2).png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;*/
-    }
-
-    /* 게시글(포스트) 영역 */
-    #postDisplay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      text-align: center;
-      /* 텍스트 가독성을 위한 그림자 효과 */
-      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
-    }
-
-    /* 제목은 화면 중앙보다 약간 위쪽에 위치 */
-    #postTitle {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-
-    /* 내용은 제목 아래에 위치 */
-    #postContent {
-      font-size: 18px;
-      line-height: 1.4;
-      max-height: 60%;
-      overflow: auto;
-    }
-
-    /* 오디오는 화면에 보이지 않도록 처리 (백그라운드 재생) */
-    #postAudio {
-      display: none;
-    }
-
-    .control-buttons {
-      position: absolute;
-      top: 50%;
-      right: 20px;
-      transform: translateY(-50%);
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .control-button {
-      background-color: rgba(0, 0, 0, 0.6);
-      color: white;
-      border: none;
-      padding: 12px;
-      margin: 10px 0;
-      cursor: pointer;
-      border-radius: 50%;
-      font-size: 24px;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .control-button:hover {
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-
-    #likeButton i {
-      transition: all 0.3s ease;
-    }
-
-    /* 댓글 창 스타일 */
-    .comment-box {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 50%;
-      background-color: #fff;
-      transform: translateY(100%);
-      transition: transform 0.3s ease-in-out;
-      padding: 20px;
-      overflow-y: scroll;
-      z-index: 3;
-    }
-
-    .comment-box.show {
-      transform: translateY(0);
-    }
-
-    .comment-list {
-      margin-bottom: 20px;
-    }
-
-    .comment-item {
-      margin-bottom: 10px;
-      font-size: 14px;
-      color: #333;
-    }
-
-    textarea {
-      width: 100%;
-      height: 50px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      resize: none;
-    }
-
-    #submitComment {
-      width: 100%;
-      padding: 10px;
-      background-color: #6a4cfc;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-
-    #submitComment:hover {
-      background-color: #5a3bd2;
-    }
-  </style>
 </head>
 <body>
   <div class="container">
@@ -190,10 +34,16 @@
 
     <!-- 댓글 창 -->
     <div class="comment-box" id="commentBox">
+      <!-- 닫기 버튼 추가 -->
+      <button class="close-button" id="closeCommentBox">
+        <i class="fas fa-times"></i>
+      </button>
       <div class="comment-list" id="commentList"></div>
       <textarea id="commentInput" placeholder="댓글을 입력하세요..."></textarea>
       <button id="submitComment">댓글 작성</button>
     </div>
+
+
 
     <!-- 스와이프 영역: 전체 컨테이너를 덮음 -->
     <div class="swipe-area" style="position: absolute; top: 0; left:0; right:0; bottom:0; z-index: 1;"></div>
@@ -212,6 +62,7 @@
     const swipeArea = document.querySelector('.swipe-area');
     const likeButton = document.getElementById('likeButton');
     const commentButton = document.getElementById('commentButton');
+    const closeCommentBox = document.getElementById('closeCommentBox');
     const commentBox = document.getElementById('commentBox');
     const commentInput = document.getElementById('commentInput');
     const commentList = document.getElementById('commentList');
@@ -234,6 +85,9 @@
           return;
         }
         posts = await response.json();
+
+        shuffleArray(posts);
+
         if (posts.length > 0) {
           updatePostDisplay();
         }
@@ -259,6 +113,12 @@
       }
     }
 
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
     // 좋아요 버튼 클릭 이벤트
     likeButton.addEventListener('click', async () => {
       if (isRequestInProgress) return;
@@ -329,6 +189,11 @@
       commentBox.classList.toggle('show');
     });
 
+    // 댓글 창 닫기 이벤트
+    closeCommentBox.addEventListener('click', () => {
+      commentBox.classList.remove('show');
+    });
+
     // 댓글 작성 이벤트
     submitComment.addEventListener('click', () => {
       const commentText = commentInput.value.trim();
@@ -397,12 +262,23 @@
       }
     });
 
-    // 게시글 전환 함수
-    function changePost(direction = 1) {
-      if (posts.length === 0) return;
-      currentIndex = (currentIndex + direction + posts.length) % posts.length;
-      updatePostDisplay();
+  // 게시글 전환 함수
+  function changePost(direction = 1) {
+    if (posts.length === 0) return;
+
+    // 게시물 전환 전, 좋아요 아이콘 상태를 초기화
+    const likeIcon = document.querySelector('#likeButton i');
+    if (likeIcon.classList.contains('fas')) {
+      // 채워진 하트라면 (red 상태), 빈 하트로 변경
+      likeIcon.classList.remove('fas', 'fa-heart');
+      likeIcon.classList.add('far', 'fa-heart');
+      likeIcon.style.color = 'white';
     }
+
+    // 게시물 전환
+    currentIndex = (currentIndex + direction + posts.length) % posts.length;
+    updatePostDisplay();
+  }
 
     // 페이지 로드 시 게시글 불러오기
     loadPosts();
