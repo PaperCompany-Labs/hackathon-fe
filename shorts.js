@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error("댓글 불러오기 오류:", error);
     }
   }
-
+//
   // 댓글을 UI에 추가하는 함수
   function addCommentToUI(content, userNo, commentNo) {
     const li = document.createElement('li');

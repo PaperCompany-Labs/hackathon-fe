@@ -13,7 +13,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             },
             body: JSON.stringify({ id: userId, password: password })
         });
-
+        //
         const data = await response.json();
         console.log("API 응답 상태 코드:", response.status);
         console.log("응답 원본 데이터:", data);
