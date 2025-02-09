@@ -5,9 +5,9 @@
   box-sizing: border-box;
 }
 
-@font-face
-{
-  font-family: 'CustomFont';  src: url('fonts/ridi.otf') format('opentype');
+@font-face {
+  font-family: 'CustomFont'; 
+  src: url('./fonts/RIDIBatang.otf') format('opentype');
 }
 
 body,
@@ -19,14 +19,23 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
-
 }
+
 .container {
   width: 375px;
   height: 90%;
   overflow: hidden;
   position: relative;
   margin: auto;
+}
+
+.swipe-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* postDisplay 위에 위치하도록 설정 */
 }
 
 /* 게시글(포스트) 영역 */
@@ -45,7 +54,6 @@ html {
   text-align: center;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
   background-color: #000000;
-
 }
 
 #postTitle {
@@ -157,6 +165,7 @@ textarea {
   resize: none;
 }
 
+/* 댓글 작성 버튼의 폰트 지정 */
 #submitComment {
   width: 100%;
   padding: 10px;
@@ -167,19 +176,61 @@ textarea {
   cursor: pointer;
   font-size: 16px;
   margin-top: 10px;
-  font-family: 'CustomFont', Arial, sans-serif;
+  font-family: 'CustomFont';  /* 폰트 추가 */
 }
 
 #submitComment:hover {
   background-color: #00abd1;
 }
 
-/* 스와이프 영역 */
-.swipe-area {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
+/* 댓글 항목 텍스트 폰트 */
+.comment-item {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #333;
+  font-family: 'CustomFont';  /* 폰트 추가 */
+}
+
+/* 수정 및 삭제 버튼들이 오른쪽 20% 영역에 나란히 배치되도록 */
+.comment-item .button-container {
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  gap: 5px; /* 버튼 사이 간격 */
+  width: 20%; /* 전체 너비의 20%로 제한 */
+}
+
+
+/* 수정 c버튼 숨김 */
+.edit-button {
+  display: none;
+}
+
+.edit-button:hover {
+  color: #2980b9; /* 어두운 파란색 */
+}
+
+/* 삭제 버튼 스타일 */
+.delete-button {
+  background-color: transparent;
+  border: none;
+  color: #e74c3c;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  font-family: 'CustomFont', Arial, sans-serif;
+}
+
+.delete-button:hover {
+  color: #c0392b;
+}
+
+/* 댓글 항목 스타일 */
+.comment-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: white;
+  border-radius: 5px;
 }

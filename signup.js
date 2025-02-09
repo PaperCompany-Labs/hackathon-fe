@@ -48,7 +48,7 @@ document.getElementById('signupForm').addEventListener('submit', async (event) =
         console.log("응답 데이터:", result); // API 응답 확인용 로그
 
         if (response.ok) {
-            alert('회원가입 성공! 로그인 페이지로 이동합니다.');
+            ////alert('회원가입 성공! 로그인 페이지로 이동합니다.');
             window.location.href = 'login.html'; // 로그인 페이지로 이동
         } else {
             alert('회원가입 실패: ' + (result.detail ? result.detail.map(e => e.msg).join(', ') : JSON.stringify(result)));
