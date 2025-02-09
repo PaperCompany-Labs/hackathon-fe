@@ -55,11 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
       postAudio.src = '';
     }
 
-    // 좋아요 아이콘 초기화 (예: 빈 하트)
+    // 좋아요 아이콘 초기화: 게시글이 이미 좋아요 되어있으면 (currentPost.liked === true)
+    // 빨간 하트, 아니면 빈 하트를 표시
     const likeIcon = likeButton.querySelector('i');
-    likeIcon.classList.remove('fas');
-    likeIcon.classList.add('far');
-    likeIcon.style.color = 'white';
+    if (currentPost.liked) {
+      likeIcon.classList.remove('far');
+      likeIcon.classList.add('fas');
+      likeIcon.style.color = 'red';
+    } else {
+      likeIcon.classList.remove('fas');
+      likeIcon.classList.add('far');
+      likeIcon.style.color = 'white';
+    }
   }
 
   // 배열 섞기 함수 (Fisher-Yates)
@@ -96,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error("댓글 불러오기 오류:", error);
     }
   }
-//
+
   // 댓글을 UI에 추가하는 함수
   function addCommentToUI(content, userNo, commentNo) {
     const li = document.createElement('li');
@@ -194,23 +201,24 @@ document.addEventListener('DOMContentLoaded', () => {
   likeButton.addEventListener('click', async () => {
     if (isRequestInProgress) return;
     isRequestInProgress = true;
-
+  
     const token = localStorage.getItem('access_token');
     const likeIcon = likeButton.querySelector('i');
     const currentPost = posts[currentIndex];
-
+  
     if (!token) {
       alert('로그인이 필요합니다!');
       window.location.href = 'login.html';
       isRequestInProgress = false;
       return;
     }
-
+  
     const likeUrl = `https://novelshorts-be.duckdns.org/shorts/${currentPost.no}/like`;
-
+    let response;
+  
     try {
-      let response;
       if (likeIcon.classList.contains('far')) {
+        // 좋아요 추가 시도 (POST)
         response = await fetch(likeUrl, {
           method: 'POST',
           headers: {
@@ -218,7 +226,18 @@ document.addEventListener('DOMContentLoaded', () => {
             'Authorization': `Bearer ${token}`
           }
         });
+        // 만약 POST 결과로 400 응답이 오면 이미 좋아요가 되어있는 상태이므로 삭제 요청 (DELETE)
+        if (!response.ok && response.status === 400) {
+          response = await fetch(likeUrl, {
+            method: 'DELETE',
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+        }
       } else {
+        // 이미 좋아요가 되어있다면 삭제 요청 (DELETE)
         response = await fetch(likeUrl, {
           method: 'DELETE',
           headers: {
@@ -227,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
       }
+  
       if (response.ok) {
         updateLikeUI(likeIcon);
       } else {
@@ -238,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => { isRequestInProgress = false; }, 500);
     }
   });
-
+  
   // 좋아요 UI 업데이트 함수
   function updateLikeUI(likeIcon) {
     if (likeIcon.classList.contains('far')) {
@@ -251,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
       likeIcon.style.color = 'white';
     }
   }
-
+  
   // 댓글 버튼 클릭 시: 댓글 창 토글 및 현재 게시글의 댓글 불러오기
   commentButton.addEventListener('click', async () => {
     commentBox.classList.toggle('show');
@@ -259,12 +279,12 @@ document.addEventListener('DOMContentLoaded', () => {
       await loadComments();
     }
   });
-
+  
   // 댓글 창 닫기
   closeCommentBox.addEventListener('click', () => {
     commentBox.classList.remove('show');
   });
-
+  
   // 댓글 작성하기
   submitComment.addEventListener('click', async () => {
     const content = commentInput.value.trim();
@@ -272,22 +292,22 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('댓글 내용을 입력하세요.');
       return;
     }
-
+  
     const token = localStorage.getItem('access_token');
     if (!token) {
       alert('로그인이 필요합니다!');
       window.location.href = 'login.html';
       return;
     }
-
+  
     const currentPost = posts[currentIndex];
     const commentUrl = 'https://novelshorts-be.duckdns.org/shorts/comment';
-
+  
     const body = {
       content: content,
       novel_shorts_no: currentPost.no
     };
-
+  
     try {
       const response = await fetch(commentUrl, {
         method: 'POST',
@@ -298,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: JSON.stringify(body)
       });
-
+  
       if (response.ok) {
         commentInput.value = ''; // 댓글 입력창 초기화
         await loadComments(); // 댓글 새로고침
@@ -309,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('댓글 요청 실패:', error);
     }
   });
-
+  
   // 마우스 이동 및 클릭 이벤트 추가 (스크롤과 일시정지)
   swipeArea.addEventListener('mousedown', (e) => {
     startY = e.clientY;
@@ -320,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
       postAudio.pause(); // 음악 일시정지
     }
   });
-
+  
   swipeArea.addEventListener('mouseup', (e) => {
     isMouseDown = false;
     const endY = e.clientY;
@@ -328,11 +348,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (endY - startY > 40) changePost(-1); // 아래로 스와이프
     if (!postAudio.paused) postAudio.play(); // 일시정지에서 재생
   });
-
+  
   swipeArea.addEventListener('mouseleave', () => {
     isMouseDown = false;
   });
-
+  
   // 게시글 전환 함수
   function changePost(direction = 1) {
     if (posts.length === 0) return;
@@ -340,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePostDisplay();
     if (commentBox.classList.contains('show')) loadComments();
   }
-
+  
   // 초기 데이터 로드
   loadPosts();
 });
