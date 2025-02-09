@@ -22,7 +22,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             localStorage.setItem('access_token', data.access_token); // 토큰 저장
             console.log("로그인 후 저장된 토큰:", localStorage.getItem('access_token'));
 
-            alert('로그인 성공!');
+            //alert('로그인 성공!');
             window.location.href = "shorts.html"; // 로그인 후 이동
         } else {
             alert('로그인 실패! 아이디 또는 비밀번호를 확인하세요.');
