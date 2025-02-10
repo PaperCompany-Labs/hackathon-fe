@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let isRequestInProgress = false;
   
   // 추가된 전역 변수
-  let startY = 0;  // 터치/마우스 시작 위치 (Y축)
-  let isMouseDown = false;  // 마우스를 누르고 있는지 확인하는 변수
+  let startY = 0;  // 시작 위치 (Y축)
+  let isMouseDown = false;  // 마우스 눌림 여부 확인
 
   const postDisplay = document.getElementById('postDisplay');
   const postTitle = document.getElementById('postTitle');
@@ -134,6 +134,75 @@ document.addEventListener('DOMContentLoaded', () => {
       li.appendChild(deleteButton);
     }
     commentList.appendChild(li); // 댓글 목록에 추가
+  }
+
+  // 댓글 수정 함수 (필요 시)
+  function editComment(commentNo) {
+    const newContent = prompt('댓글을 수정하세요:');
+    if (newContent) {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert('로그인이 필요합니다!');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const updatedBody = {
+        content: newContent
+      };
+
+      try {
+        fetch(`https://novelshorts-be.duckdns.org/shorts/comment/${commentNo}`, {
+          method: 'PUT',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(updatedBody)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('댓글이 수정되었습니다.');
+            loadComments(); // 댓글 새로고침
+          } else {
+            alert('댓글 수정에 실패했습니다.');
+          }
+        });
+      } catch (error) {
+        console.error('댓글 수정 요청 실패:', error);
+      }
+    }
+  }
+
+  // 댓글 삭제 함수  
+  async function deleteComment(commentNo) {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('로그인이 필요합니다!');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    try {
+      const response = await fetch(`https://novelshorts-be.duckdns.org/shorts/comment/${commentNo}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        console.log(`댓글 ${commentNo} 삭제 성공`);
+        await loadComments(); // 댓글 새로고침
+      } else {
+        console.error(`댓글 삭제 실패: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('댓글 삭제 요청 실패:', error);
+    }
   }
 
   // 좋아요 상태를 명시적으로 설정하는 함수
@@ -280,26 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // 터치 및 마우스 이동 및 클릭 이벤트 추가 (스크롤과 일시정지)
-  swipeArea.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].clientY; // 터치 시작 Y좌표
-    
-    if (postAudio.paused) {
-      postAudio.play(); // 음악 재생
-    } else {
-      postAudio.pause(); // 음악 일시정지
-    }
-  });
-
-  swipeArea.addEventListener('touchend', (e) => {
-    const endY = e.changedTouches[0].clientY; // 터치 종료 Y좌표
-    if (startY - endY > 40) changePost(1); // 위로 스와이프
-    if (endY - startY > 40) changePost(-1); // 아래로 스와이프
-    if (!postAudio.paused) postAudio.play(); // 일시정지에서 재생
-  });
-
+  // 마우스 이벤트 (데스크탑에서 스와이프 및 터치 대신 사용)
   swipeArea.addEventListener('mousedown', (e) => {
-    startY = e.clientY; // 마우스 시작 Y좌표
+    startY = e.clientY;
     
     if (postAudio.paused) {
       postAudio.play(); // 음악 재생
@@ -307,18 +359,40 @@ document.addEventListener('DOMContentLoaded', () => {
       postAudio.pause(); // 음악 일시정지
     }
   });
-
+  
   swipeArea.addEventListener('mouseup', (e) => {
-    const endY = e.clientY; // 마우스 종료 Y좌표
+    isMouseDown = false;
+    const endY = e.clientY;
     if (startY - endY > 40) changePost(1); // 위로 스와이프
     if (endY - startY > 40) changePost(-1); // 아래로 스와이프
     if (!postAudio.paused) postAudio.play(); // 일시정지에서 재생
   });
-
+  
   swipeArea.addEventListener('mouseleave', () => {
     isMouseDown = false;
   });
-
+  
+  // 터치 이벤트 추가 (모바일)
+  swipeArea.addEventListener('touchstart', (e) => {
+    // 첫 번째 터치의 Y 좌표를 기록합니다.
+    startY = e.touches[0].clientY;
+    
+    // 터치 시 음악 재생/일시정지 토글 (원하는 동작으로 수정 가능)
+    if (postAudio.paused) {
+      postAudio.play();
+    } else {
+      postAudio.pause();
+    }
+  });
+  
+  swipeArea.addEventListener('touchend', (e) => {
+    // 터치가 끝난 후의 Y 좌표를 가져옵니다.
+    const endY = e.changedTouches[0].clientY;
+    if (startY - endY > 40) changePost(1); // 위로 스와이프 시 다음 게시물
+    if (endY - startY > 40) changePost(-1); // 아래로 스와이프 시 이전 게시물
+    if (!postAudio.paused) postAudio.play(); // 터치 후 재생
+  });
+  
   // 게시글 전환 함수
   function changePost(direction = 1) {
     if (posts.length === 0) return;
