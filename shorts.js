@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let isRequestInProgress = false;
   
   // 추가된 전역 변수
-  let startY = 0;  // 마우스 시작 위치 (Y축)
-  let isMouseDown = false;  // 마우스를 누르고 있는지 확인하는 변수
+  let startY = 0;  // 시작 위치 (Y축)
+  let isMouseDown = false;  // 마우스 눌림 여부 확인
 
   const postDisplay = document.getElementById('postDisplay');
   const postTitle = document.getElementById('postTitle');
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // 마우스 이동 및 클릭 이벤트 추가 (스크롤과 일시정지)
+  // 마우스 이벤트 (데스크탑에서 스와이프 및 터치 대신 사용)
   swipeArea.addEventListener('mousedown', (e) => {
     startY = e.clientY;
     
@@ -370,6 +370,27 @@ document.addEventListener('DOMContentLoaded', () => {
   
   swipeArea.addEventListener('mouseleave', () => {
     isMouseDown = false;
+  });
+  
+  // 터치 이벤트 추가 (모바일)
+  swipeArea.addEventListener('touchstart', (e) => {
+    // 첫 번째 터치의 Y 좌표를 기록합니다.
+    startY = e.touches[0].clientY;
+    
+    // 터치 시 음악 재생/일시정지 토글 (원하는 동작으로 수정 가능)
+    if (postAudio.paused) {
+      postAudio.play();
+    } else {
+      postAudio.pause();
+    }
+  });
+  
+  swipeArea.addEventListener('touchend', (e) => {
+    // 터치가 끝난 후의 Y 좌표를 가져옵니다.
+    const endY = e.changedTouches[0].clientY;
+    if (startY - endY > 40) changePost(1); // 위로 스와이프 시 다음 게시물
+    if (endY - startY > 40) changePost(-1); // 아래로 스와이프 시 이전 게시물
+    if (!postAudio.paused) postAudio.play(); // 터치 후 재생
   });
   
   // 게시글 전환 함수

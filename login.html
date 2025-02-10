@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=375, height=812, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>로그인 화면</title>
   <style>
     @font-face {
@@ -79,6 +79,10 @@
       border-radius: 5px;
       cursor: pointer;
       margin-top: 15px;
+    }
+    .login-button:active {
+      background-color: #d0077d; /* 터치 시 색상 변경 */
+      transform: scale(0.98); /* 눌린 효과 */
     }
     .login-button:hover {
       background-color: #d0077d;
@@ -193,6 +197,16 @@
         alert('네트워크 오류가 발생했습니다!');
       }
     });
+
+    // 터치와 클릭 이벤트를 모두 처리할 수 있도록 변경
+    const loginButton = document.querySelector('.login-button');
+    loginButton.addEventListener('touchstart', function() {
+      loginButton.classList.add('active'); // 터치 시작 시 스타일 추가
+    });
+    loginButton.addEventListener('touchend', function() {
+      loginButton.classList.remove('active'); // 터치 종료 시 스타일 제거
+    });
   </script>
+
 </body>
 </html>
