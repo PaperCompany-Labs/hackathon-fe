@@ -2,10 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale: 1.0" />
   <title>쇼츠 스타일 웹앱</title>
+  <!-- Google Fonts (Roboto) -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <!-- 사용자 정의 CSS -->
   <link rel="stylesheet" href="shorts.css" />
 </head>
 <body>
@@ -35,12 +38,22 @@
       <button class="close-button" id="closeCommentBox">
         <i class="fas fa-times"></i>
       </button>
-      <div class="comment-list" id="commentList"></div>
+      <!-- 댓글 목록 (각 댓글은 JS에서 <li> 항목으로 추가됨) -->
+        <ul class="comment-list" id="commentList">
+          <li>
+            <div class="comment-header">
+              <span class="comment-user-name">작성자 이름</span>
+              <button class="delete-button">삭제</button>
+            </div>
+            <div class="comment-content">댓글 내용이 여기에 표시됩니다.</div>
+          </li>
+        </ul>
+      <!-- 댓글 입력 영역 -->
       <textarea id="commentInput" placeholder="댓글을 입력하세요..."></textarea>
       <button id="submitComment">댓글 작성</button>
     </div>
 
-    <!-- 스와이프 영역- -->
+    <!-- 스와이프 영역 -->
     <div class="swipe-area"></div>
   </div>
 
