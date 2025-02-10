@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      const response = await fetch('https://novelshorts-be.duckdns.org/shorts?limit=10&offset=0', {
+      const response = await fetch('https://novelshorts-be.duckdns.org/shorts?limit=30&offset=0', {
         method: 'GET',
         headers: headers
       });
@@ -96,39 +96,47 @@ document.addEventListener('DOMContentLoaded', () => {
       const commentsArray = data.comments;
       commentList.innerHTML = '';  // 기존 댓글을 비운다
 
+      // 댓글 각각에 대해 작성자 이름, 내용, 그리고 본인 댓글일 경우 삭제 버튼 추가
       commentsArray.forEach(comment => {
-        addCommentToUI(comment.content, comment.user_no, comment.no);  // 댓글 추가
+        addCommentToUI(comment.content, comment.user_no, comment.no, comment.user_name);
       });
     } catch (error) {
       console.error("댓글 불러오기 오류:", error);
     }
   }
 
-  // 댓글을 UI에 추가하는 함수
-  function addCommentToUI(content, userNo, commentNo) {
+  // 댓글을 UI에 추가하는 함수  
+  // 댓글의 작성자 이름을 상단에 표시하고, 현재 로그인한 사용자의 댓글일 경우 삭제 버튼 추가
+  function addCommentToUI(content, userNo, commentNo, userName) {
     const li = document.createElement('li');
-    li.textContent = content;
-
-    // 수정 버튼 추가
-    const editButton = document.createElement('button');
-    editButton.textContent = '수정';
-    editButton.classList.add('edit-button');
-    editButton.addEventListener('click', () => editComment(commentNo)); // 수정 버튼 클릭 시 수정 함수 실행
-
-    // 삭제 버튼 추가
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = '삭제';
-    deleteButton.classList.add('delete-button');
-    deleteButton.addEventListener('click', () => deleteComment(commentNo)); // 삭제 버튼 클릭 시 삭제 함수 실행
     
-    // 댓글 항목에 수정, 삭제 버튼 추가
-    li.appendChild(editButton);
-    li.appendChild(deleteButton);
-
+    // 작성자 이름 요소 (댓글 위에 표시)
+    const userNameElement = document.createElement('div');
+    userNameElement.classList.add('comment-user-name');
+    userNameElement.textContent = userName;
+    
+    // 댓글 내용 요소
+    const contentElement = document.createElement('div');
+    contentElement.classList.add('comment-content');
+    contentElement.textContent = content;
+    
+    li.appendChild(userNameElement);
+    li.appendChild(contentElement);
+    
+    // 현재 로그인한 사용자의 번호
+    const currentUserNo = localStorage.getItem('user_no');
+    // 본인 댓글인 경우 삭제 버튼 추가 (원한다면 수정 버튼도 추가 가능)
+    if (currentUserNo && currentUserNo === String(userNo)) {
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = '삭제';
+      deleteButton.classList.add('delete-button');
+      deleteButton.addEventListener('click', () => deleteComment(commentNo));
+      li.appendChild(deleteButton);
+    }
     commentList.appendChild(li); // 댓글 목록에 추가
   }
 
-  // 댓글 수정 함수 (버튼 클릭 시 수정 가능)
+  // 댓글 수정 함수 (필요 시)
   function editComment(commentNo) {
     const newContent = prompt('댓글을 수정하세요:');
     if (newContent) {
@@ -168,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 댓글 삭제 함수
+  // 댓글 삭제 함수  
   async function deleteComment(commentNo) {
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -176,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = 'login.html';
       return;
     }
-
+    
     try {
       const response = await fetch(`https://novelshorts-be.duckdns.org/shorts/comment/${commentNo}`, {
         method: 'DELETE',
