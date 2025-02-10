@@ -38,6 +38,7 @@
             flex-direction: column;
             justify-content: center;
             text-align: center;
+            position: relative;
         }
 
         h1 {
@@ -123,11 +124,31 @@
         .gender-radio {
             display: none;
         }
+
+        /* 팝업 메시지 스타일 */
+.popup-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 2px solid #9a33c2;
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 20px;
+    color: #9a33c2;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width: 80%;       /* 전체 너비의 80% */
+    max-width: 500px; /* 최대 너비 500px 제한 */
+}
+
     </style>
 </head>
 <body>
 
-    <div class="signup-container">
+    <div class="signup-container" id="signupContainer">
         <h1>회원가입</h1>
         <form id="signupForm">
             <input type="text" id="name" placeholder="이름" required><br>
@@ -137,8 +158,8 @@
             <div class="error" id="idError">아이디는 최대 10자까지만 가능합니다.</div>
 
             <input type="password" id="password" placeholder="비밀번호 (최소 8자)" required>
-            <div class="info">비밀번호는 최소 8자 이상이어야 합니다.</div>
-            <div class="error" id="passwordError">비밀번호는 최소 8자 이상이어야 합니다.</div>
+            <div class="info">비밀번호는 최소 8자 이상, 영문+숫자 조합입니다.</div>
+            <div class="error" id="passwordError">비밀번호는 최소 8자 이상, 영문+숫자 조합입니다.</div>
 
             <input type="number" id="age" placeholder="나이 (양수 입력)" required>
             <div class="info">나이는 숫자로 입력하세요.</div>
@@ -177,6 +198,9 @@
         }
 
         document.getElementById('signupForm').addEventListener('submit', function(event) {
+            // 무조건 기본 제출 동작 취소 (AJAX 혹은 성공 메시지 표시를 위해)
+            event.preventDefault();
+
             let valid = true;
 
             const userId = document.getElementById('id').value.trim();
@@ -212,8 +236,22 @@
             }
 
             if (!valid) {
-                event.preventDefault(); // 폼 제출 방지
+                return; // 에러가 있으면 여기서 중단
             }
+
+            // 유효하다면 팝업 메시지를 생성하여 표시한 후 2초 후 로그인 페이지로 이동
+            const container = document.getElementById('signupContainer');
+            
+            // 팝업 메시지 생성
+            const popup = document.createElement('div');
+            popup.className = 'popup-message';
+            popup.innerHTML = '회원가입 성공!<br>로그인 페이지로 넘어갑니다.';
+            container.appendChild(popup);
+
+            // 2초 후 로그인 페이지로 이동
+            setTimeout(function() {
+                window.location.href = "login.html";
+            }, 2000);
         });
 
         // Mouse swipe detection for back navigation: 오른쪽으로 드래그하면 로그인 페이지로 이동

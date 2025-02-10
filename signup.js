@@ -10,17 +10,17 @@ document.getElementById('signupForm').addEventListener('submit', async (event) =
 
     // **입력값 검증 추가**
     if (userId.length > 10) {
-        alert("아이디는 최대 10자까지만 가능합니다.");
+        //alert("아이디는 최대 10자까지만 가능합니다.");
         return;
     }
 
     if (password.length < 8) {
-        alert("비밀번호는 최소 8자 이상이어야 합니다.");
+        //alert("비밀번호는 최소 8자 이상이어야 합니다.");
         return;
     }
 
     if (!gender) {
-        alert("성별을 선택해주세요.");
+        //alert("성별을 선택해주세요.");
         return;
     }
 
@@ -51,10 +51,10 @@ document.getElementById('signupForm').addEventListener('submit', async (event) =
             ////alert('회원가입 성공! 로그인 페이지로 이동합니다.');
             window.location.href = 'login.html'; // 로그인 페이지로 이동
         } else {
-            alert('회원가입 실패: ' + (result.detail ? result.detail.map(e => e.msg).join(', ') : JSON.stringify(result)));
+            //alert('회원가입 실패: ' + (result.detail ? result.detail.map(e => e.msg).join(', ') : JSON.stringify(result)));
         }
     } catch (error) {
         console.error('회원가입 요청 오류:', error);
-        alert('회원가입 중 오류가 발생했습니다.');
+        //alert('회원가입 중 오류가 발생했습니다.');
     }
 });
