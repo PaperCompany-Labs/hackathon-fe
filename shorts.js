@@ -27,9 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // 게시글 불러오기
   async function loadPosts() {
     try {
+      // 사용자 토큰을 헤더에 포함
+      const token = localStorage.getItem('access_token');
+      const headers = { 'Accept': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch('https://novelshorts-be.duckdns.org/shorts?limit=10&offset=0', {
         method: 'GET',
-        headers: { 'Accept': 'application/json' }
+        headers: headers
       });
       if (!response.ok) {
         console.error('게시글 불러오기 실패', response.status);
@@ -55,18 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
       postAudio.src = '';
     }
 
-    // 좋아요 아이콘 초기화: 게시글이 이미 좋아요 되어있으면 (currentPost.liked === true)
-    // 빨간 하트, 아니면 빈 하트를 표시
+    // 좋아요 아이콘 초기화: 
+    // 게시글의 is_like 필드가 true이면 빨간 하트(눌린 상태),
+    // 아니면 빈 하트로 표시
     const likeIcon = likeButton.querySelector('i');
-    if (currentPost.liked) {
-      likeIcon.classList.remove('far');
-      likeIcon.classList.add('fas');
-      likeIcon.style.color = 'red';
-    } else {
-      likeIcon.classList.remove('fas');
-      likeIcon.classList.add('far');
-      likeIcon.style.color = 'white';
-    }
+    setLikeUI(likeIcon, currentPost.is_like);
   }
 
   // 배열 섞기 함수 (Fisher-Yates)
@@ -197,6 +197,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // 좋아요 상태를 명시적으로 설정하는 함수
+  function setLikeUI(likeIcon, isLiked) {
+    if (isLiked) {
+      likeIcon.classList.remove('far');
+      likeIcon.classList.add('fas');
+      likeIcon.style.color = 'red';
+    } else {
+      likeIcon.classList.remove('fas');
+      likeIcon.classList.add('far');
+      likeIcon.style.color = 'white';
+    }
+  }
+
   // 좋아요 버튼 이벤트
   likeButton.addEventListener('click', async () => {
     if (isRequestInProgress) return;
@@ -215,10 +228,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
     const likeUrl = `https://novelshorts-be.duckdns.org/shorts/${currentPost.no}/like`;
     let response;
+    let newLikeState = currentPost.is_like; // 현재 좋아요 상태 저장
   
     try {
-      if (likeIcon.classList.contains('far')) {
-        // 좋아요 추가 시도 (POST)
+      if (!currentPost.is_like) {
+        // 좋아요가 안 되어있다면 POST로 좋아요 추가 시도
         response = await fetch(likeUrl, {
           method: 'POST',
           headers: {
@@ -226,8 +240,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'Authorization': `Bearer ${token}`
           }
         });
-        // 만약 POST 결과로 400 응답이 오면 이미 좋아요가 되어있는 상태이므로 삭제 요청 (DELETE)
-        if (!response.ok && response.status === 400) {
+        if (response.ok) {
+          newLikeState = true;
+        } else if (response.status === 400) {
+          // 400 응답은 이미 좋아요 상태라는 의미로 해석하고 DELETE 요청(좋아요 취소) 진행
           response = await fetch(likeUrl, {
             method: 'DELETE',
             headers: {
@@ -235,9 +251,12 @@ document.addEventListener('DOMContentLoaded', () => {
               'Authorization': `Bearer ${token}`
             }
           });
+          if (response.ok) {
+            newLikeState = false;
+          }
         }
       } else {
-        // 이미 좋아요가 되어있다면 삭제 요청 (DELETE)
+        // 이미 좋아요 상태라면 DELETE로 좋아요 취소 시도
         response = await fetch(likeUrl, {
           method: 'DELETE',
           headers: {
@@ -245,10 +264,15 @@ document.addEventListener('DOMContentLoaded', () => {
             'Authorization': `Bearer ${token}`
           }
         });
+        if (response.ok) {
+          newLikeState = false;
+        }
       }
   
       if (response.ok) {
-        updateLikeUI(likeIcon);
+        // 서버 응답에 따라 currentPost의 is_like 상태 업데이트 및 UI 갱신
+        currentPost.is_like = newLikeState;
+        setLikeUI(likeIcon, newLikeState);
       } else {
         console.error(`서버 응답 실패: ${response.status}`);
       }
@@ -258,19 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => { isRequestInProgress = false; }, 500);
     }
   });
-  
-  // 좋아요 UI 업데이트 함수
-  function updateLikeUI(likeIcon) {
-    if (likeIcon.classList.contains('far')) {
-      likeIcon.classList.remove('far');
-      likeIcon.classList.add('fas');
-      likeIcon.style.color = 'red';
-    } else {
-      likeIcon.classList.remove('fas');
-      likeIcon.classList.add('far');
-      likeIcon.style.color = 'white';
-    }
-  }
   
   // 댓글 버튼 클릭 시: 댓글 창 토글 및 현재 게시글의 댓글 불러오기
   commentButton.addEventListener('click', async () => {
